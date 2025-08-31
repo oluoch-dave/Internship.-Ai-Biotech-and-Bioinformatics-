@@ -47,7 +47,14 @@ if("padj" %in% names(data)){
   missing_count <- sum(is.na(data$padj))
   
   cat("Missing values in 'padj':", missing_count, "\n")
-  data$padj[is.na(data$padj)] <- 1
+  data$padj[is.na(data$padj)] <- mean(data$padj, na.rm = TRUE)
+}
+
+if("logFC" %in% names(data)){
+  missing_count <- sum(is.na(data$logfc))
+  
+  cat("Missing values in 'logFC':", missing_count, "\n")
+  data$logFC[is.na(data$logFC)] <- mean(data$logFC, na.rm = TRUE)
 }
 
 #Adding new column 'status', applying the Classify_gene function to each row
@@ -61,29 +68,24 @@ result_list[[file_names]] <- data
 
 #Saving the processed files in the Results folder
 
-output_file_path <- file.path(output_dir, paste0("classified_", file_names))
+output_file_path <- file.path(output_dir, paste0("classified", file_names))
 write.csv(data, output_file_path, row.names = FALSE)
-cat("Results saved to:", output_dir, "\n")
+cat("Results saved to:", output_file_path, "\n")
 
 
-#Printing the summary counts of significant, upregulated and downregulated
+#Printing the summary counts of significant, upregulated and downregulated using tables()
 
-cat("\nSummary for", file_names, ":\n")
-cat("Total genes:", nrow(data), "\n")
-cat("Upregulated genes:", sum(data$status == "Upregulated"), "\n")
-cat("Downregulated genes:", sum(data$status == "Downregulated"), "\n")
-cat("Not significant genes:", sum(data$status == "Not_Significant"), "\n")
+gene_counts <- table(data$status)
+cat("Summary count for", files_names, "\n")
+print(gene_counts)
 
-#Using table() for summary
 
-cat("\nTable summary:\n")
-print(table(data$status))
 
 
 #Assessing the results
 
-results_1 <- result_list[["DEGs_Data_1.csv"]] 
-results_2 <- result_list[["DEGs_Data_2.csv"]]
+results_1 <- result_list[[1]] 
+results_2 <- result_list[[2]]
 
 #Saving the Entire R workspace
 
